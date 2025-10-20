@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <title>Calculadora de Experiencia Laboral</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="language-selector">
+                    <label for="language-select" data-i18n="language">Idioma:</label>
+                    <select id="language-select">
+                        <option value="es" data-i18n="spanish">Español</option>
+                        <option value="en" data-i18n="english">English</option>
+                    </select>
+                </div>
+            </div>
+            <img src="assets/img/logo.png" alt="Logo Inversiones Thiago" style="max-width: 200px; height: auto; margin-bottom: 20px;" data-i18n="logoAlt">
+            <h1 data-i18n="title">Calculador de Experiencia Laboral</h1>
+            <p data-i18n="subtitle">Calcula tu experiencia específica y general de manera precisa</p>
+        </div>
+
+        <div class="content">
+            <div class="tables-container">
+                <!-- Tabla de Experiencia Específica -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title" data-i18n="specificExperience">Experiencia Específica</div>
+                        <div class="total-summary">
+                            <div class="total-display">
+                                <div class="total-item">
+                                    <div class="total-label" data-i18n="years">Años</div>
+                                    <div class="total-value" id="specific-total-years">0</div>
+                                </div>
+                                <div class="total-item">
+                                    <div class="total-label" data-i18n="months">Meses</div>
+                                    <div class="total-value" id="specific-total-months">0</div>
+                                </div>
+                                <div class="total-item">
+                                    <div class="total-label" data-i18n="days">Días</div>
+                                    <div class="total-value" id="specific-total-days">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="specific-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="from">Desde</th>
+                                    <th data-i18n="to">Hasta</th>
+                                    <th data-i18n="total">Total</th>
+                                    <th class="actions-cell" data-i18n="actions">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="specific-tbody">
+                                <!-- Filas se generan dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-actions">
+                        <button class="clear-btn" onclick="clearFields('specific')" data-i18n="clearFields">Limpiar Campos</button>
+                        <button class="add-row-btn" onclick="addRow('specific')" data-i18n="addRow">Agregar Fila</button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Experiencia General -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title" data-i18n="generalExperience">Experiencia General</div>
+                        <div class="total-summary">
+                            <div class="total-display">
+                                <div class="total-item">
+                                    <div class="total-label" data-i18n="years">Años</div>
+                                    <div class="total-value" id="general-total-years">0</div>
+                                </div>
+                                <div class="total-item">
+                                    <div class="total-label" data-i18n="months">Meses</div>
+                                    <div class="total-value" id="general-total-months">0</div>
+                                </div>
+                                <div class="total-item">
+                                    <div class="total-label" data-i18n="days">Días</div>
+                                    <div class="total-value" id="general-total-days">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="table-container">
+                        <table id="general-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="from">Desde</th>
+                                    <th data-i18n="to">Hasta</th>
+                                    <th data-i18n="total">Total</th>
+                                    <th class="actions-cell" data-i18n="actions">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="general-tbody">
+                                <!-- Filas se generan dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-actions">
+                        <button class="clear-btn" onclick="clearFields('general')" data-i18n="clearFields">Limpiar Campos</button>
+                        <button class="add-row-btn" onclick="addRow('general')" data-i18n="addRow">Agregar Fila</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="https://www.linkedin.com/in/diego-falcon-leon/" target="_blank"><p data-i18n="madeBy"> Made with ❤️ by - Diego Falcón León </p></a>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
