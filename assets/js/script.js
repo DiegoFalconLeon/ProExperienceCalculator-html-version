@@ -70,7 +70,7 @@ function updateDynamicContent() {
 
         if (startDate && endDate && startDate <= endDate) {
             const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             const period = daysToYearsMonthsDays(diffDays);
             cell.textContent = `${period.years} ${translations.years.toLowerCase()}, ${period.months} ${translations.months.toLowerCase()}, ${period.days} ${translations.days.toLowerCase()}`;
         } else {
@@ -133,7 +133,7 @@ function addTableRow(tableType, tbody, isReadonly = false, startDate = '', endDa
         const end = new Date(endDate);
         if (start && end && start <= end) {
             const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             const period = daysToYearsMonthsDays(diffDays);
             document.getElementById(totalId).textContent = `${period.years} ${translations.years.toLowerCase()}, ${period.months} ${translations.months.toLowerCase()}, ${period.days} ${translations.days.toLowerCase()}`;
         }
@@ -325,7 +325,7 @@ function calculateTotal(tableType) {
 
         if (startDate && endDate && startDate <= endDate) {
             const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             totalDays += diffDays;
         }
     });
@@ -346,7 +346,7 @@ function calculateTotal(tableType) {
 
         if (startDate && endDate && startDate <= endDate) {
             const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             const period = daysToYearsMonthsDays(diffDays);
             totalCell.textContent = `${period.years} ${translations.years.toLowerCase()}, ${period.months} ${translations.months.toLowerCase()}, ${period.days} ${translations.days.toLowerCase()}`;
         } else {
