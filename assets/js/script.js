@@ -316,18 +316,30 @@ function removeRowConfirmed(row, tableType) {
 function calculateTotal(tableType) {
     const tbody = document.getElementById(`${tableType}-tbody`);
     const rows = tbody.querySelectorAll('tr');
-    let totalDays = 0;
+    let dateRanges = [];
 
+    // Recopilar todos los rangos de fechas válidos
     rows.forEach(row => {
         const dateInputs = row.querySelectorAll('.date-input');
         const startDate = new Date(dateInputs[0].value);
         const endDate = new Date(dateInputs[1].value);
 
         if (startDate && endDate && startDate <= endDate) {
-            const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            totalDays += diffDays;
+            dateRanges.push({
+                start: new Date(startDate),
+                end: new Date(endDate)
+            });
         }
+    });
+
+    // Fusionar rangos solapados y calcular días totales únicos
+    const mergedRanges = mergeOverlappingRanges(dateRanges);
+    let totalDays = 0;
+
+    mergedRanges.forEach(range => {
+        const diffTime = Math.abs(range.end - range.start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        totalDays += diffDays;
     });
 
     const { years, months, days } = daysToYearsMonthsDays(totalDays);
@@ -337,7 +349,7 @@ function calculateTotal(tableType) {
     document.getElementById(`${tableType}-total-months`).textContent = months;
     document.getElementById(`${tableType}-total-days`).textContent = days;
 
-    // Actualizar cada fila individualmente
+    // Actualizar cada fila individualmente (sin considerar intersecciones para mostrar el cálculo individual)
     rows.forEach(row => {
         const dateInputs = row.querySelectorAll('.date-input');
         const totalCell = row.querySelector('.total-cell');
@@ -371,6 +383,30 @@ function daysToYearsMonthsDays(totalDays) {
     const days = remainingDays % 30;
 
     return { years, months, days };
+}
+
+function mergeOverlappingRanges(ranges) {
+    if (ranges.length === 0) return [];
+
+    // Ordenar rangos por fecha de inicio
+    ranges.sort((a, b) => a.start - b.start);
+
+    const merged = [ranges[0]];
+
+    for (let i = 1; i < ranges.length; i++) {
+        const current = ranges[i];
+        const last = merged[merged.length - 1];
+
+        // Si hay solapamiento o son adyacentes, fusionar
+        if (current.start <= last.end) {
+            last.end = new Date(Math.max(last.end, current.end));
+        } else {
+            // No hay solapamiento, agregar como nuevo rango
+            merged.push(current);
+        }
+    }
+
+    return merged;
 }
 
 function toggleClearButtonVisibility(tableType) {
