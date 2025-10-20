@@ -6,7 +6,7 @@
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
 
-Una aplicacion web moderna y responsiva disenada para calcular la experiencia laboral profesional con precision. Esta herramienta ayuda a los usuarios a rastrear tanto la experiencia especifica como la general de carrera a traves de una interfaz intuitiva de tabla dual con sincronizacion automatica.
+Una aplicacion web moderna y responsiva diseñada para calcular la experiencia laboral profesional de manera sencilla. Esta herramienta ayuda a los usuarios a rastrear tanto la experiencia especifica como la general de carrera a traves de una interfaz intuitiva de tabla dual con sincronizacion automatica.
 
 ## Caracteristicas
 
@@ -18,13 +18,13 @@ Una aplicacion web moderna y responsiva disenada para calcular la experiencia la
 - Integracion SweetAlert: Dialogos modales hermosos para acciones del usuario
 - Validacion de Datos: Calculo en tiempo real y validacion de entrada
 - Interfaz Limpia: Interfaz moderna con animaciones suaves y efectos hover
-- Internacionalizacion: Soporte completo para espanol e ingles con selector de idioma
+- Internacionalizacion: Soporte completo para español e ingles con selector de idioma
 
 ## Internacionalizacion (i18n)
 
 La aplicacion incluye soporte completo de internacionalizacion:
 
-- **Idiomas Soportados**: Espanol e Ingles
+- **Idiomas Soportados**: Español e Ingles
 - **Selector de Idioma**: Ubicado en la parte superior derecha del encabezado
 - **Persistencia**: La preferencia de idioma se guarda automaticamente en localStorage
 - **Traducciones Completas**: Todos los textos de la interfaz, mensajes y confirmaciones
@@ -32,7 +32,7 @@ La aplicacion incluye soporte completo de internacionalizacion:
 
 ## Demo en Vivo
 
-[Ver Repositorio en GitHub](https://github.com/DiegoFalconLeon/ProExperienceCalculator-html-version.git)
+[Ver en vivo en GitHub Pages](https://diegofalconleon.github.io/ProExperienceCalculator-html-version/)
 
 ## Tecnologias Utilizadas
 
@@ -52,7 +52,7 @@ La aplicacion incluye soporte completo de internacionalizacion:
 
 1. Abra la aplicacion en su navegador web
 2. **Selector de Idioma** (esquina superior derecha):
-   - Seleccione "Espanol" o "English" del menu desplegable
+   - Seleccione "Español" o "English" del menu desplegable
    - La interfaz cambiara automaticamente al idioma seleccionado
    - La preferencia se guarda automaticamente para futuras visitas
 3. Tabla de Experiencia Especifica:
@@ -90,7 +90,7 @@ professional-experience-calculator/
 │       └── logo.ico             # Favicon
 │
 ├── lang/
-│   ├── es.json                  # Traducciones al espanol
+│   ├── es.json                  # Traducciones al español
 │   └── en.json                  # Traducciones al ingles
 │
 └── README.md                    # Documentacion del proyecto
@@ -143,7 +143,7 @@ Calcule su experiencia profesional con precision y estilo!</content>
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
 
-A modern, responsive web application designed to calculate professional work experience with precision. This tool helps users track both specific and general career experience through an intuitive dual-table interface with automatic synchronization.
+A modern, responsive web application designed to calculate professional work experience easily. This tool helps users track both specific and general career experience through an intuitive dual-table interface with automatic synchronization.
 
 ## Features
 
@@ -169,7 +169,7 @@ The application includes complete internationalization support:
 
 ## Repository
 
-[View Repository on GitHub](https://github.com/DiegoFalconLeon/ProExperienceCalculator-html-version.git)
+[View live on GitHub Pages](https://diegofalconleon.github.io/ProExperienceCalculator-html-version/)
 
 ## Technologies Used
 
