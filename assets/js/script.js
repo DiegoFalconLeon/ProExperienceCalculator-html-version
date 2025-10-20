@@ -102,7 +102,64 @@ document.addEventListener('DOMContentLoaded', async function() {
     syncSpecificToGeneral();
     toggleClearButtonVisibility('specific');
     toggleClearButtonVisibility('general');
+
+    // Check if there's a calculation to load from sessionStorage
+    loadCalculationFromSession();
 });
+
+function loadCalculationFromSession() {
+    const calculationData = sessionStorage.getItem('loadCalculation');
+    if (calculationData) {
+        const calculation = JSON.parse(calculationData);
+
+        // Clear sessionStorage
+        sessionStorage.removeItem('loadCalculation');
+
+        // Guardar datos para edición futura
+        sessionStorage.setItem('editingCalculation', JSON.stringify(calculation));
+
+        // Load specific data
+        if (calculation.specificData && calculation.specificData.length > 0) {
+            // Clear existing rows
+            const specificTbody = document.getElementById('specific-tbody');
+            specificTbody.innerHTML = '';
+
+            // Add rows with data
+            calculation.specificData.forEach(data => {
+                const row = addTableRow('specific', specificTbody, false, data.startDate, data.endDate);
+            });
+        }
+
+        // Load general data (only editable rows)
+        if (calculation.generalData && calculation.generalData.length > 0) {
+            // Clear existing editable rows
+            const generalTbody = document.getElementById('general-tbody');
+            const editableRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
+            editableRows.forEach(row => row.remove());
+
+            // Add editable rows with data
+            calculation.generalData.forEach(data => {
+                addTableRow('general', generalTbody, false, data.startDate, data.endDate);
+            });
+        }
+
+        // Recalculate totals
+        calculateTotal('specific');
+        calculateTotal('general');
+
+        // Change language if needed
+        if (calculation.language && calculation.language !== currentLanguage) {
+            changeLanguage(calculation.language);
+        }
+
+        // Show success message
+        Swal.fire(
+            translations.loadCalculation || 'Cálculo Cargado',
+            `${translations.loadCalculation || 'Cálculo de'} ${calculation.firstName} ${calculation.lastName} ${'cargado correctamente' || 'loaded successfully'}`,
+            'success'
+        );
+    }
+}
 
 function initializeTable(tableType, rowCount) {
     const tbody = document.getElementById(`${tableType}-tbody`);
@@ -409,6 +466,171 @@ function mergeOverlappingRanges(ranges) {
     return merged;
 }
 
+function saveCalculation() {
+    // Verificar si estamos editando un cálculo existente
+    const editingCalculation = sessionStorage.getItem('editingCalculation');
+    let existingData = null;
+    
+    if (editingCalculation) {
+        existingData = JSON.parse(editingCalculation);
+    }
+
+    // Recopilar datos específicos
+    const specificData = [];
+    const specificRows = document.querySelectorAll('#specific-tbody tr');
+    specificRows.forEach(row => {
+        const dateInputs = row.querySelectorAll('.date-input');
+        const startDate = dateInputs[0].value;
+        const endDate = dateInputs[1].value;
+        if (startDate && endDate) {
+            specificData.push({
+                startDate: startDate,
+                endDate: endDate
+            });
+        }
+    });
+
+    // Recopilar datos generales
+    const generalData = [];
+    const generalRows = document.querySelectorAll('#general-tbody tr');
+    generalRows.forEach(row => {
+        const dateInputs = row.querySelectorAll('.date-input');
+        const startDate = dateInputs[0].value;
+        const endDate = dateInputs[1].value;
+        if (startDate && endDate) {
+            generalData.push({
+                startDate: startDate,
+                endDate: endDate
+            });
+        }
+    });
+
+    // Recopilar totales
+    const totalSpecific = {
+        years: document.getElementById('specific-total-years').textContent,
+        months: document.getElementById('specific-total-months').textContent,
+        days: document.getElementById('specific-total-days').textContent
+    };
+
+    const totalGeneral = {
+        years: document.getElementById('general-total-years').textContent,
+        months: document.getElementById('general-total-months').textContent,
+        days: document.getElementById('general-total-days').textContent
+    };
+
+    // Si estamos editando, guardar directamente sin pedir datos
+    if (existingData) {
+        const updatedCalculation = {
+            ...existingData,
+            specificData: specificData,
+            generalData: generalData,
+            totalSpecific: totalSpecific,
+            totalGeneral: totalGeneral,
+            savedDate: new Date().toISOString(),
+            language: currentLanguage
+        };
+        
+        // Actualizar en localStorage
+        const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
+        const index = savedCalculations.findIndex(calc => calc.id === existingData.id);
+        if (index !== -1) {
+            savedCalculations[index] = updatedCalculation;
+            localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+        }
+        
+        // Limpiar sessionStorage
+        sessionStorage.removeItem('editingCalculation');
+        
+        // Mostrar mensaje de éxito y redirigir
+        Swal.fire(
+            translations.saveSuccessTitle,
+            translations.saveSuccessText,
+            'success'
+        ).then(() => {
+            // Limpiar todos los campos después de guardar
+            clearAllFields();
+            // Redirigir al index después de un breve delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        });
+        return;
+    }
+
+    // Mostrar SweetAlert para ingresar datos (solo para nuevos cálculos)
+    Swal.fire({
+        title: translations.saveDialogTitle,
+        html: `
+            <div style="text-align: left;">
+                <label for="registroNumber" style="display: block; margin-bottom: 5px; font-weight: 600;">${translations.registroNumber}:</label>
+                <input id="registroNumber" class="swal2-input" placeholder="${translations.registroNumber}" style="width: 100%; margin-bottom: 15px;">
+                
+                <label for="firstName" style="display: block; margin-bottom: 5px; font-weight: 600;">${translations.firstName}:</label>
+                <input id="firstName" class="swal2-input" placeholder="${translations.firstName}" style="width: 100%; margin-bottom: 15px;">
+                
+                <label for="lastName" style="display: block; margin-bottom: 5px; font-weight: 600;">${translations.lastName}:</label>
+                <input id="lastName" class="swal2-input" placeholder="${translations.lastName}" style="width: 100%;">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: translations.confirmButton.replace('{action}', translations.saveCalculation.toLowerCase()),
+        cancelButtonText: translations.cancelButton,
+        customClass: {
+            confirmButton: 'swal-confirm-btn',
+            cancelButton: 'swal-cancel-btn'
+        },
+        preConfirm: () => {
+            const registroNumber = document.getElementById('registroNumber').value.trim();
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            
+            if (!registroNumber || !firstName || !lastName) {
+                Swal.showValidationMessage(translations.saveErrorText);
+                return false;
+            }
+            
+            return { registroNumber, firstName, lastName };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const { registroNumber, firstName, lastName } = result.value;
+            
+            // Crear objeto de cálculo
+            const calculation = {
+                id: Date.now(),
+                registroNumber: registroNumber,
+                firstName: firstName,
+                lastName: lastName,
+                specificData: specificData,
+                generalData: generalData,
+                totalSpecific: totalSpecific,
+                totalGeneral: totalGeneral,
+                savedDate: new Date().toISOString(),
+                language: currentLanguage
+            };
+            
+            // Guardar en localStorage
+            const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
+            savedCalculations.push(calculation);
+            localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+            
+            // Mostrar mensaje de éxito
+            Swal.fire(
+                translations.saveSuccessTitle,
+                translations.saveSuccessText,
+                'success'
+            ).then(() => {
+                // Limpiar todos los campos después de guardar
+                clearAllFields();
+                // Redirigir al index después de un breve delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            });
+        }
+    });
+}
+
 function toggleClearButtonVisibility(tableType) {
     const tbody = document.getElementById(`${tableType}-tbody`);
     const clearBtn = document.querySelector(`#${tableType}-table`).closest('.table-section').querySelector('.clear-btn');
@@ -430,4 +652,30 @@ function toggleClearButtonVisibility(tableType) {
     } else {
         clearBtn.style.display = 'none';
     }
+}
+
+function clearAllFields() {
+    // Limpiar tabla específica
+    const specificTbody = document.getElementById('specific-tbody');
+    const specificRows = specificTbody.querySelectorAll('tr');
+    specificRows.forEach(row => {
+        const dateInputs = row.querySelectorAll('.date-input:not(.readonly)');
+        dateInputs.forEach(input => input.value = '');
+    });
+
+    // Limpiar tabla general (solo filas editables)
+    const generalTbody = document.getElementById('general-tbody');
+    const generalRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
+    generalRows.forEach(row => {
+        const dateInputs = row.querySelectorAll('.date-input:not(.readonly)');
+        dateInputs.forEach(input => input.value = '');
+    });
+
+    // Recalcular totales
+    calculateTotal('specific');
+    calculateTotal('general');
+
+    // Ocultar botones de limpiar
+    toggleClearButtonVisibility('specific');
+    toggleClearButtonVisibility('general');
 }

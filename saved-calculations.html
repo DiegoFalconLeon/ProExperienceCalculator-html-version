@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/img/logo.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.tailwindcss.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/saved-calculations.css">
+    <title data-i18n="savedCalculations">Cálculos Guardados</title>
+</head>
+<body>
+    <div class="saved-calculations-container">
+        <div class="saved-calculations-header">
+            <div class="header-top">
+                <div class="language-selector">
+                    <label for="language-select" data-i18n="language">Idioma:</label>
+                    <select id="language-select">
+                        <option value="es" data-i18n="spanish">Español</option>
+                        <option value="en" data-i18n="english">English</option>
+                    </select>
+                </div>
+            </div>
+            <img src="assets/img/logo.png" alt="Logo SoftEEFC" style="max-width: 200px; height: auto; margin-bottom: 20px;" data-i18n="logoAlt">
+            <h1 data-i18n="savedCalculations">Cálculos Guardados</h1>
+            <p data-i18n="subtitle">Administra tus cálculos de experiencia guardados</p>
+        </div>
+
+        <!-- Botón para volver a la calculadora -->
+        <div class="back-to-calculator">
+            <a href="index.html" class="back-to-calculator-btn" data-i18n="backToCalculator">← Volver a la Calculadora</a>
+        </div>
+
+        <div class="saved-calculations-content">
+            <div class="saved-calculations-table-container">
+                <table id="saved-calculations-table" class="display">
+                    <thead>
+                        <tr>
+                            <th data-i18n="registroNumber"># Registro</th>
+                            <th data-i18n="lastName">Apellidos</th>
+                            <th data-i18n="firstName">Nombres</th>
+                            <th data-i18n="specificExperience">Experiencia Específica</th>
+                            <th data-i18n="generalExperience">Experiencia General</th>
+                            <th data-i18n="actions">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calculations-tbody">
+                        <!-- Los cálculos se cargan dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="https://www.linkedin.com/in/diego-falcon-leon/" target="_blank"><p data-i18n="madeBy"> Made with ❤️ by - Diego Falcón León </p></a>
+        </div>
+    </div>
+
+    <script src="assets/js/saved-calculations.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.tailwindcss.min.js"></script>
+</body>
+</html>

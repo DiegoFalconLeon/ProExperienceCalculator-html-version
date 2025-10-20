@@ -1,0 +1,356 @@
+/* Estilos específicos para la página de cálculos guardados */
+
+/* Contenedor principal de la página */
+.saved-calculations-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: visible;
+    min-height: auto;
+}
+
+/* Header de la página */
+.saved-calculations-header {
+    background: #ffffff;
+    color: #1f2937;
+    padding: 30px;
+    text-align: center;
+}
+
+.saved-calculations-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.saved-calculations-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Contenido principal */
+.saved-calculations-content {
+    padding: 25px;
+    overflow: visible;
+}
+
+/* Botón para volver a la calculadora */
+.back-to-calculator {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px 25px 0 25px;
+}
+
+.back-to-calculator-btn {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    display: inline-block;
+}
+
+.back-to-calculator-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    color: white;
+}
+
+.back-to-calculator-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+}
+
+/* Contenedor específico para la tabla de cálculos guardados */
+.saved-calculations-table-container {
+    overflow: visible;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin: 0;
+    padding: 20px;
+    padding-bottom: 70px; /* Espacio para el paginado */
+    position: relative;
+}
+
+/* Estilos para DataTables */
+.dataTables_wrapper {
+    margin: 20px 0 0 0;
+    overflow: visible;
+    position: relative;
+}
+
+.dataTables_length,
+.dataTables_info,
+.dataTables_paginate {
+    margin-top: 15px;
+}
+
+/* Reorganizar controles de DataTables */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.dataTables_wrapper .dataTables_length {
+    float: left;
+    margin-right: 20px;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    float: right;
+    text-align: right;
+}
+
+.dataTables_wrapper .dataTables_info {
+    clear: both;
+    padding-top: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    position: absolute;
+    bottom: -50px;
+    right: 0;
+    text-align: right;
+    margin: 0;
+}
+
+.dataTables_length select,
+.dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.dataTables_length select:focus,
+.dataTables_paginate .paginate_button:focus {
+    outline: none;
+    border-color: #20c5bf;
+    box-shadow: 0 0 0 2px rgba(32, 197, 191, 0.1);
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background: linear-gradient(135deg, #20c5bf 0%, #7543e9 100%);
+    color: white;
+    border-color: #20c5bf;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    border-color: #e5e7eb;
+}
+
+.dataTables_filter input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.dataTables_filter input:focus {
+    outline: none;
+    border-color: #20c5bf;
+    box-shadow: 0 0 0 2px rgba(32, 197, 191, 0.1);
+}
+
+/* Estilos específicos para la tabla de cálculos guardados */
+#saved-calculations-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#saved-calculations-table th,
+#saved-calculations-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#saved-calculations-table th {
+    background: linear-gradient(135deg, #20c5bf 0%, #7543e9 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#saved-calculations-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+#saved-calculations-table .edit-btn,
+#saved-calculations-table .delete-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    margin-right: 5px;
+    transition: all 0.2s ease;
+}
+
+#saved-calculations-table .edit-btn {
+    background: #20c5bf;
+    color: white;
+}
+
+#saved-calculations-table .edit-btn:hover {
+    background: #1aa3a0;
+    transform: translateY(-1px);
+}
+
+#saved-calculations-table .delete-btn {
+    background: #ef4444;
+    color: white;
+}
+
+#saved-calculations-table .delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .saved-calculations-header {
+        padding: 15px;
+    }
+
+    .saved-calculations-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .saved-calculations-content {
+        padding: 15px;
+    }
+
+    #saved-calculations-table {
+        font-size: 0.875rem;
+    }
+
+    #saved-calculations-table th,
+    #saved-calculations-table td {
+        padding: 8px 10px;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    /* Mejorar scroll horizontal en móviles */
+    .saved-calculations-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #saved-calculations-table {
+        min-width: 800px;
+    }
+
+    /* Ajustar botón de volver */
+    .back-to-calculator {
+        margin: 15px 15px 0 15px;
+    }
+
+    .back-to-calculator-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Media query para tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+    #saved-calculations-table {
+        font-size: 0.9rem;
+    }
+
+    #saved-calculations-table th,
+    #saved-calculations-table td {
+        padding: 10px 12px;
+    }
+
+    .saved-calculations-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #saved-calculations-table {
+        min-width: 900px;
+    }
+}
+
+/* Media query para móviles muy pequeños */
+@media (max-width: 480px) {
+    .saved-calculations-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .saved-calculations-header p {
+        font-size: 0.9rem;
+    }
+
+    .saved-calculations-content {
+        padding: 10px;
+    }
+
+    #saved-calculations-table {
+        font-size: 0.8rem;
+    }
+
+    #saved-calculations-table th,
+    #saved-calculations-table td {
+        padding: 6px 8px;
+    }
+
+    #saved-calculations-table .edit-btn,
+    #saved-calculations-table .delete-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    .saved-calculations-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #saved-calculations-table {
+        min-width: 700px;
+    }
+
+    /* Ajustar botón de volver */
+    .back-to-calculator {
+        margin: 15px 15px 0 15px;
+    }
+
+    .back-to-calculator-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
