@@ -1,8 +1,8 @@
-// Internationalization variables
+// Variables de internacionalización
 let currentLanguage = localStorage.getItem('language') || 'es';
 let translations = {};
 
-// Load translations and initialize app
+// Cargar traducciones e inicializar aplicación
 async function loadTranslations(lang) {
     try {
         const response = await fetch(`lang/${lang}.json`);
@@ -16,13 +16,13 @@ async function loadTranslations(lang) {
 }
 
 function updateUI() {
-    // Update document title
+    // Actualizar título del documento
     document.title = translations.title;
 
-    // Update html lang attribute
+    // Actualizar atributo lang del html
     document.documentElement.lang = currentLanguage;
 
-    // Update all elements with data-i18n attributes
+    // Actualizar todos los elementos con atributos data-i18n
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[key]) {
@@ -36,32 +36,32 @@ function updateUI() {
         }
     });
 
-    // Update language selector
+    // Actualizar selector de idioma
     const languageSelect = document.getElementById('language-select');
     if (languageSelect) {
         languageSelect.value = currentLanguage;
     }
 
-    // Update dynamic content (buttons, indicators, total cells, etc.)
+    // Actualizar contenido dinámico (botones, indicadores, celdas de total, etc.)
     updateDynamicContent();
 
-    // Recalculate totals to update with new language
+    // Recalcular totales para actualizar con el nuevo idioma
     calculateTotal('specific');
     calculateTotal('general');
 }
 
 function updateDynamicContent() {
-    // Update remove buttons
+    // Actualizar botones de eliminar
     document.querySelectorAll('.remove-row-btn').forEach(btn => {
         btn.textContent = translations.remove;
     });
 
-    // Update readonly indicators
+    // Actualizar indicadores de solo lectura
     document.querySelectorAll('.readonly-indicator').forEach(indicator => {
         indicator.textContent = translations.readOnly;
     });
 
-    // Update all total cells with current translations
+    // Actualizar todas las celdas de total con las traducciones actuales
     document.querySelectorAll('.total-cell').forEach(cell => {
         const row = cell.closest('tr');
         const dateInputs = row.querySelectorAll('.date-input');
@@ -85,11 +85,11 @@ function changeLanguage(lang) {
     }
 }
 
-// Initialize the app with translations
+// Inicializar la aplicación con traducciones
 document.addEventListener('DOMContentLoaded', async function() {
     await loadTranslations(currentLanguage);
 
-    // Set up language selector event listener
+    // Configurar listener del selector de idioma
     const languageSelect = document.getElementById('language-select');
     if (languageSelect) {
         languageSelect.addEventListener('change', function(e) {
@@ -97,14 +97,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // Initialize tables
+    // Mejorar comportamiento de inputs de fecha en móviles
+    enhanceDateInputsForMobile();
+
+    // Inicializar tablas
     initializeTable('specific', 1);
     syncSpecificToGeneral();
     toggleClearButtonVisibility('specific');
     toggleClearButtonVisibility('general');
 
-    // Check if there's a calculation to load from sessionStorage
+    // Verificar si hay un cálculo para cargar desde sessionStorage
     loadCalculationFromSession();
+    
+    // Verificar si mostrar el botón de cálculos guardados
+    toggleViewSavedButton();
 });
 
 function loadCalculationFromSession() {
@@ -112,52 +118,93 @@ function loadCalculationFromSession() {
     if (calculationData) {
         const calculation = JSON.parse(calculationData);
 
-        // Clear sessionStorage
+        // Limpiar sessionStorage
         sessionStorage.removeItem('loadCalculation');
 
         // Guardar datos para edición futura
         sessionStorage.setItem('editingCalculation', JSON.stringify(calculation));
 
-        // Load specific data
-        if (calculation.specificData && calculation.specificData.length > 0) {
-            // Clear existing rows
+        // Mostrar indicador de edición
+        showEditingIndicator(calculation);
+
+        // Cargar datos basados en campos disponibles
+        if (calculation.rows && calculation.rows.length > 0) {
+            // Nuevo formato: cargar todas las filas en la tabla general en orden cronológico
             const specificTbody = document.getElementById('specific-tbody');
-            specificTbody.innerHTML = '';
-
-            // Add rows with data
-            calculation.specificData.forEach(data => {
-                const row = addTableRow('specific', specificTbody, false, data.startDate, data.endDate);
-            });
-        }
-
-        // Load general data (only editable rows)
-        if (calculation.generalData && calculation.generalData.length > 0) {
-            // Clear existing editable rows
             const generalTbody = document.getElementById('general-tbody');
-            const editableRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
-            editableRows.forEach(row => row.remove());
 
-            // Add editable rows with data
-            calculation.generalData.forEach(data => {
-                addTableRow('general', generalTbody, false, data.startDate, data.endDate);
+            // Limpiar todas las filas
+            specificTbody.innerHTML = '';
+            generalTbody.innerHTML = '';
+
+            // Separar filas específicas y generales
+            const specificRows = calculation.rows.filter(row => row.type === 'specific');
+            const generalRows = calculation.rows.filter(row => row.type === 'general');
+
+            // Agregar filas específicas a la tabla específica
+            specificRows.forEach(rowData => {
+                addTableRow('specific', specificTbody, false, rowData.startDate, rowData.endDate);
             });
+
+            // Agregar todas las filas a la tabla general en orden cronológico
+            calculation.rows.forEach(rowData => {
+                const isReadonly = rowData.type === 'specific';
+                addTableRow('general', generalTbody, isReadonly, rowData.startDate, rowData.endDate);
+            });
+
+            // Asegurar que haya al menos una fila editable vacía en general si no hay filas generales
+            const editableRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
+            if (editableRows.length === 0) {
+                addTableRow('general', generalTbody, false);
+            }
+        } else {
+            // Formato legacy: cargar específica y general por separado
+            // Cargar datos específicos
+            if (calculation.specificData && calculation.specificData.length > 0) {
+                // Limpiar filas existentes
+                const specificTbody = document.getElementById('specific-tbody');
+                specificTbody.innerHTML = '';
+
+                // Agregar filas con datos
+                calculation.specificData.forEach(data => {
+                    const row = addTableRow('specific', specificTbody, false, data.startDate, data.endDate);
+                });
+            }
+
+            // Cargar datos generales (solo filas editables)
+            const generalTbody = document.getElementById('general-tbody');
+            generalTbody.innerHTML = ''; // Limpiar todas las filas
+
+            if (calculation.generalData && calculation.generalData.length > 0) {
+                // Agregar filas editables con datos
+                calculation.generalData.forEach(data => {
+                    addTableRow('general', generalTbody, false, data.startDate, data.endDate);
+                });
+            } else {
+                // Agregar al menos una fila editable vacía
+                addTableRow('general', generalTbody, false);
+            }
         }
 
-        // Recalculate totals
+        // Recalcular totales
         calculateTotal('specific');
         calculateTotal('general');
 
-        // Change language if needed
+        // Cambiar idioma si es necesario
         if (calculation.language && calculation.language !== currentLanguage) {
             changeLanguage(calculation.language);
         }
 
-        // Show success message
+        // Mostrar mensaje de éxito
         Swal.fire(
             translations.loadCalculation || 'Cálculo Cargado',
             `${translations.loadCalculation || 'Cálculo de'} ${calculation.firstName} ${calculation.lastName} ${'cargado correctamente' || 'loaded successfully'}`,
             'success'
         );
+    } else {
+        // No hay cálculo para cargar, limpiar editingCalculation si existe
+        sessionStorage.removeItem('editingCalculation');
+        hideEditingIndicator();
     }
 }
 
@@ -173,6 +220,8 @@ function addTableRow(tableType, tbody, isReadonly = false, startDate = '', endDa
     if (isReadonly) {
         row.classList.add('readonly-row');
     }
+    // Asignar timestamp para mantener orden cronológico
+    row.dataset.timestamp = Date.now();
     const totalId = `${tableType}-total-${Date.now()}`;
     row.innerHTML = `
         <td><input type="date" class="date-input ${isReadonly ? 'readonly' : ''}" onchange="calculateTotal('${tableType}')" value="${startDate}" ${isReadonly ? 'readonly' : ''}></td>
@@ -203,11 +252,8 @@ function addRow(tableType) {
     const tbody = document.getElementById(`${tableType}-tbody`);
 
     if (tableType === 'general') {
-        // Para general, añadir la fila editable al final (después de las filas de solo lectura)
+        // Para general, añadir la fila editable al final
         addTableRow('general', tbody, false);
-        // Asegurar que esté al final
-        const newRow = tbody.lastElementChild;
-        tbody.appendChild(newRow);
     } else {
         // Para específica, añadir normalmente
         addTableRow(tableType, tbody, false);
@@ -257,41 +303,53 @@ function syncSpecificToGeneral() {
     const specificTbody = document.getElementById('specific-tbody');
     const generalTbody = document.getElementById('general-tbody');
 
-    // Limpiar filas de solo lectura existentes en general
-    const readonlyRows = generalTbody.querySelectorAll('.readonly-row');
-    readonlyRows.forEach(row => row.remove());
-
-    // Añadir filas específicas como de solo lectura en general (al principio)
+    // Obtener las fechas de las filas específicas actuales
+    const specificDates = [];
     const specificRows = specificTbody.querySelectorAll('tr');
-    let hasSpecificRows = false;
     specificRows.forEach(row => {
         const dateInputs = row.querySelectorAll('.date-input');
         const startDate = dateInputs[0].value;
         const endDate = dateInputs[1].value;
-
         if (startDate && endDate) {
-            addTableRow('general', generalTbody, true, startDate, endDate);
-            hasSpecificRows = true;
+            specificDates.push({ startDate, endDate });
         }
     });
 
-    // Gestionar filas editables
-    const editableRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
+    // Obtener las filas de solo lectura existentes y sus fechas
+    const readonlyRows = generalTbody.querySelectorAll('.readonly-row');
+    const existingReadonlyDates = [];
+    readonlyRows.forEach(row => {
+        const dateInputs = row.querySelectorAll('.date-input');
+        const startDate = dateInputs[0].value;
+        const endDate = dateInputs[1].value;
+        existingReadonlyDates.push({ startDate, endDate, row });
+    });
 
+    // Eliminar filas de solo lectura que ya no existen en específica
+    existingReadonlyDates.forEach(({ startDate, endDate, row }) => {
+        const stillExists = specificDates.some(specific =>
+            specific.startDate === startDate && specific.endDate === endDate
+        );
+        if (!stillExists) {
+            row.remove();
+        }
+    });
+
+    // Agregar filas de solo lectura que existen en específica pero no en general
+    specificDates.forEach(({ startDate, endDate }) => {
+        const alreadyExists = existingReadonlyDates.some(existing =>
+            existing.startDate === startDate && existing.endDate === endDate
+        );
+        if (!alreadyExists) {
+            addTableRow('general', generalTbody, true, startDate, endDate);
+        }
+    });
+
+    // Gestionar filas editables - NO eliminar filas editables existentes, permitir múltiples
+    const editableRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
     if (editableRows.length === 0) {
         // Si no hay filas editables, añadir una
         addTableRow('general', generalTbody, false);
-    } else if (editableRows.length > 1) {
-        // Si hay múltiples filas editables, mantener solo una al final
-        for (let i = 0; i < editableRows.length - 1; i++) {
-            editableRows[i].remove();
-        }
-        // Asegurar que la fila editable esté al final
-        const lastEditableRow = editableRows[editableRows.length - 1];
-        generalTbody.appendChild(lastEditableRow);
-    } else {
-        // Si hay exactamente una fila editable, asegurarse de que esté al final
-        generalTbody.appendChild(editableRows[0]);
     }
 
     toggleClearButtonVisibility('general');
@@ -423,9 +481,12 @@ function calculateTotal(tableType) {
         }
     });
 
-    // Si es tabla específica, sincronizar con general
+    // Si es tabla específica, sincronizar con general (solo si no estamos editando)
     if (tableType === 'specific') {
-        syncSpecificToGeneral();
+        const isEditing = sessionStorage.getItem('editingCalculation');
+        if (!isEditing) {
+            syncSpecificToGeneral();
+        }
         // Recalcular el total general después de sincronizar
         calculateTotal('general');
     }
@@ -475,35 +536,55 @@ function saveCalculation() {
         existingData = JSON.parse(editingCalculation);
     }
 
-    // Recopilar datos específicos
-    const specificData = [];
+    // Recopilar todas las filas en orden cronológico basado en timestamps
+    const allRows = [];
+    const generalRows = document.querySelectorAll('#general-tbody tr:not(.readonly-row)');
     const specificRows = document.querySelectorAll('#specific-tbody tr');
-    specificRows.forEach(row => {
+
+    // Crear un array con todas las filas con sus timestamps
+    const rowsWithTimestamps = [];
+
+    generalRows.forEach((row) => {
         const dateInputs = row.querySelectorAll('.date-input');
         const startDate = dateInputs[0].value;
         const endDate = dateInputs[1].value;
         if (startDate && endDate) {
-            specificData.push({
+            rowsWithTimestamps.push({
+                type: 'general',
                 startDate: startDate,
-                endDate: endDate
+                endDate: endDate,
+                timestamp: parseInt(row.dataset.timestamp) || Date.now()
             });
         }
     });
 
-    // Recopilar datos generales
-    const generalData = [];
-    const generalRows = document.querySelectorAll('#general-tbody tr');
-    generalRows.forEach(row => {
+    specificRows.forEach((row) => {
         const dateInputs = row.querySelectorAll('.date-input');
         const startDate = dateInputs[0].value;
         const endDate = dateInputs[1].value;
         if (startDate && endDate) {
-            generalData.push({
+            rowsWithTimestamps.push({
+                type: 'specific',
                 startDate: startDate,
-                endDate: endDate
+                endDate: endDate,
+                timestamp: parseInt(row.dataset.timestamp) || Date.now()
             });
         }
     });
+
+    // Ordenar por timestamp
+    rowsWithTimestamps.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Para compatibilidad, mantener specificData y generalData
+    const specificData = rowsWithTimestamps.filter(row => row.type === 'specific').map(row => ({
+        startDate: row.startDate,
+        endDate: row.endDate
+    }));
+
+    const generalData = rowsWithTimestamps.filter(row => row.type === 'general').map(row => ({
+        startDate: row.startDate,
+        endDate: row.endDate
+    }));
 
     // Recopilar totales
     const totalSpecific = {
@@ -518,62 +599,41 @@ function saveCalculation() {
         days: document.getElementById('general-total-days').textContent
     };
 
-    // Si estamos editando, guardar directamente sin pedir datos
-    if (existingData) {
-        const updatedCalculation = {
-            ...existingData,
-            specificData: specificData,
-            generalData: generalData,
-            totalSpecific: totalSpecific,
-            totalGeneral: totalGeneral,
-            savedDate: new Date().toISOString(),
-            language: currentLanguage
-        };
-        
-        // Actualizar en localStorage
-        const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
-        const index = savedCalculations.findIndex(calc => calc.id === existingData.id);
-        if (index !== -1) {
-            savedCalculations[index] = updatedCalculation;
-            localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
-        }
-        
-        // Limpiar sessionStorage
-        sessionStorage.removeItem('editingCalculation');
-        
-        // Mostrar mensaje de éxito y redirigir
-        Swal.fire(
-            translations.saveSuccessTitle,
-            translations.saveSuccessText,
-            'success'
-        ).then(() => {
-            // Limpiar todos los campos después de guardar
-            clearAllFields();
-            // Redirigir al index después de un breve delay
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        });
-        return;
-    }
-
-    // Mostrar SweetAlert para ingresar datos (solo para nuevos cálculos)
+    // Mostrar SweetAlert para ingresar datos
+    const isEditing = !!existingData;
+    
     Swal.fire({
-        title: translations.saveDialogTitle,
+        title: isEditing ? translations.updateCalculation : translations.saveDialogTitle,
         html: `
             <div style="text-align: left;">
+                ${isEditing ? `<p style="margin-bottom: 15px; color: #856404; background: #fff3cd; padding: 10px; border-radius: 5px; border: 1px solid #ffeaa7;">${translations.editingMode} ${existingData.firstName} ${existingData.lastName}</p>` : ''}
                 <label for="registroNumber" style="display: block; margin-bottom: 5px; font-weight: 600;">${translations.registroNumber}:</label>
-                <input id="registroNumber" class="swal2-input" placeholder="${translations.registroNumber}" style="width: 100%; margin-bottom: 15px;">
+                <input id="registroNumber" type="number" class="swal2-input" placeholder="${translations.registroNumber}" value="${isEditing ? existingData.registroNumber : ''}" style="width: 100%; margin-bottom: 15px;">
                 
                 <label for="firstName" style="display: block; margin-bottom: 5px; font-weight: 600;">${translations.firstName}:</label>
-                <input id="firstName" class="swal2-input" placeholder="${translations.firstName}" style="width: 100%; margin-bottom: 15px;">
+                <input id="firstName" class="swal2-input" placeholder="${translations.firstName}" value="${isEditing ? existingData.firstName : ''}" style="width: 100%; margin-bottom: 15px;">
                 
                 <label for="lastName" style="display: block; margin-bottom: 5px; font-weight: 600;">${translations.lastName}:</label>
-                <input id="lastName" class="swal2-input" placeholder="${translations.lastName}" style="width: 100%;">
+                <input id="lastName" class="swal2-input" placeholder="${translations.lastName}" value="${isEditing ? existingData.lastName : ''}" style="width: 100%;">
+                
+                ${isEditing ? `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <p style="margin-bottom: 10px; font-weight: 600;">¿Qué desea hacer?</p>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="saveAction" value="update" checked style="margin-right: 5px;">
+                            ${translations.updateExisting}
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="saveAction" value="new" style="margin-right: 5px;">
+                            ${translations.saveAsNew}
+                        </label>
+                    </div>
+                </div>` : ''}
             </div>
         `,
         showCancelButton: true,
-        confirmButtonText: translations.confirmButton.replace('{action}', translations.saveCalculation.toLowerCase()),
+        confirmButtonText: isEditing ? translations.updateCalculation : translations.confirmButton.replace('{action}', translations.saveCalculation.toLowerCase()),
         cancelButtonText: translations.cancelButton,
         customClass: {
             confirmButton: 'swal-confirm-btn',
@@ -584,49 +644,129 @@ function saveCalculation() {
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             
-            if (!registroNumber || !firstName || !lastName) {
+            // Validar que el número de registro sea un número positivo válido
+            const registroNum = parseInt(registroNumber);
+            if (!registroNumber || isNaN(registroNum) || registroNum <= 0) {
                 Swal.showValidationMessage(translations.saveErrorText);
                 return false;
             }
             
-            return { registroNumber, firstName, lastName };
+            if (!firstName || !lastName) {
+                Swal.showValidationMessage(translations.saveErrorText);
+                return false;
+            }
+            
+            const saveAction = isEditing ? document.querySelector('input[name="saveAction"]:checked').value : 'new';
+            
+            return { registroNumber: registroNum.toString(), firstName, lastName, saveAction };
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            const { registroNumber, firstName, lastName } = result.value;
+            const { registroNumber, firstName, lastName, saveAction } = result.value;
             
-            // Crear objeto de cálculo
-            const calculation = {
-                id: Date.now(),
-                registroNumber: registroNumber,
-                firstName: firstName,
-                lastName: lastName,
-                specificData: specificData,
-                generalData: generalData,
-                totalSpecific: totalSpecific,
-                totalGeneral: totalGeneral,
-                savedDate: new Date().toISOString(),
-                language: currentLanguage
-            };
-            
-            // Guardar en localStorage
-            const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
-            savedCalculations.push(calculation);
-            localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
-            
-            // Mostrar mensaje de éxito
-            Swal.fire(
-                translations.saveSuccessTitle,
-                translations.saveSuccessText,
-                'success'
-            ).then(() => {
-                // Limpiar todos los campos después de guardar
-                clearAllFields();
-                // Redirigir al index después de un breve delay
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            });
+            if (isEditing && saveAction === 'new') {
+                // Guardar como nuevo cálculo
+                const newCalculation = {
+                    id: Date.now(),
+                    registroNumber: registroNumber,
+                    firstName: firstName,
+                    lastName: lastName,
+                    specificData: specificData,
+                    generalData: generalData,
+                    rows: rowsWithTimestamps, // Guardar orden cronológico
+                    totalSpecific: totalSpecific,
+                    totalGeneral: totalGeneral,
+                    savedDate: new Date().toISOString(),
+                    language: currentLanguage
+                };
+                
+                // Guardar en localStorage
+                const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
+                savedCalculations.push(newCalculation);
+                localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+                
+                // Limpiar editingCalculation
+                sessionStorage.removeItem('editingCalculation');
+                hideEditingIndicator();
+                
+                // Mostrar mensaje de éxito
+                Swal.fire(
+                    translations.saveSuccessTitle,
+                    translations.saveSuccessText,
+                    'success'
+                ).then(() => {
+                    // Limpiar todos los campos después de guardar
+                    clearAllFields();
+                    // Verificar si mostrar el botón de cálculos guardados
+                    toggleViewSavedButton();
+                    // Redirigir al index después de un breve delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                });
+            } else {
+                // Actualizar cálculo existente (o guardar nuevo si no estaba editando)
+                const calculation = isEditing ? {
+                    ...existingData,
+                    registroNumber: registroNumber,
+                    firstName: firstName,
+                    lastName: lastName,
+                    specificData: specificData,
+                    generalData: generalData,
+                    rows: rowsWithTimestamps, // Guardar orden cronológico
+                    totalSpecific: totalSpecific,
+                    totalGeneral: totalGeneral,
+                    savedDate: new Date().toISOString(),
+                    language: currentLanguage
+                } : {
+                    id: Date.now(),
+                    registroNumber: registroNumber,
+                    firstName: firstName,
+                    lastName: lastName,
+                    specificData: specificData,
+                    generalData: generalData,
+                    rows: rowsWithTimestamps, // Guardar orden cronológico
+                    totalSpecific: totalSpecific,
+                    totalGeneral: totalGeneral,
+                    savedDate: new Date().toISOString(),
+                    language: currentLanguage
+                };
+                
+                if (isEditing) {
+                    // Actualizar en localStorage
+                    const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
+                    const index = savedCalculations.findIndex(calc => calc.id === existingData.id);
+                    if (index !== -1) {
+                        savedCalculations[index] = calculation;
+                        localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+                    }
+                    
+                    // Limpiar editingCalculation
+                    sessionStorage.removeItem('editingCalculation');
+                    hideEditingIndicator();
+                } else {
+                    // Guardar nuevo
+                    const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
+                    savedCalculations.push(calculation);
+                    localStorage.setItem('savedCalculations', JSON.stringify(savedCalculations));
+                }
+                
+                // Mostrar mensaje de éxito
+                Swal.fire(
+                    translations.saveSuccessTitle,
+                    translations.saveSuccessText,
+                    'success'
+                ).then(() => {
+                    // Limpiar todos los campos después de guardar
+                    clearAllFields();
+                    // Verificar si mostrar el botón de cálculos guardados
+                    toggleViewSavedButton();
+                    // Redirigir al index después de un breve delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                });
+            }
         }
     });
 }
@@ -654,28 +794,149 @@ function toggleClearButtonVisibility(tableType) {
     }
 }
 
+function showEditingIndicator(calculation) {
+    const indicator = document.getElementById('editing-indicator');
+    const info = document.getElementById('editing-info');
+    info.textContent = `${calculation.firstName} ${calculation.lastName} (${calculation.registroNumber})`;
+    indicator.style.display = 'block';
+}
+
+function hideEditingIndicator() {
+    const indicator = document.getElementById('editing-indicator');
+    indicator.style.display = 'none';
+}
+
+function cancelEdit() {
+    Swal.fire({
+        title: translations.confirmClearTitle,
+        text: translations.confirmClearText.replace('{tableName}', translations.newCalculation.toLowerCase()),
+        icon: 'question',
+        showCancelButton: true,
+        customClass: {
+            confirmButton: 'swal-confirm-btn',
+            cancelButton: 'swal-cancel-btn'
+        },
+        confirmButtonText: translations.confirmButton.replace('{action}', translations.cancelEdit.toLowerCase()),
+        cancelButtonText: translations.cancelButton
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Limpiar editingCalculation
+            sessionStorage.removeItem('editingCalculation');
+            hideEditingIndicator();
+            
+            // Limpiar todos los campos
+            clearAllFields();
+            
+            // Reinicializar tablas
+            initializeTable('specific', 1);
+            const generalTbody = document.getElementById('general-tbody');
+            generalTbody.innerHTML = '';
+            addTableRow('general', generalTbody, false);
+            
+            // Recalcular totales
+            calculateTotal('specific');
+            calculateTotal('general');
+            
+            Swal.fire(
+                translations.clearedTitle,
+                translations.clearedText,
+                'success'
+            );
+        }
+    });
+}
+
+// Función para mostrar/ocultar el botón de cálculos guardados
+function toggleViewSavedButton() {
+    const viewSavedBtn = document.querySelector('.view-saved-btn');
+    if (!viewSavedBtn) return;
+    
+    // Verificar si hay cálculos guardados en localStorage
+    const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
+    const hasSavedCalculations = savedCalculations.length > 0;
+    
+    // Mostrar u ocultar el botón según si hay cálculos guardados
+    viewSavedBtn.style.display = hasSavedCalculations ? 'inline-block' : 'none';
+}
+
+// Función para mejorar el comportamiento de inputs de fecha en móviles
+function enhanceDateInputsForMobile() {
+    // Detectar si es un dispositivo móvil/táctil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                    ('ontouchstart' in window) ||
+                    (window.innerWidth <= 768 && window.innerHeight <= 1024);
+
+    if (isMobile) {
+        // Para dispositivos móviles, agregar event listeners para mejorar UX
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('date-input')) {
+                const input = e.target;
+                
+                // Asegurar que el input mantenga el foco después de seleccionar fecha
+                setTimeout(() => {
+                    if (input.value && !input.matches(':focus')) {
+                        input.focus();
+                    }
+                }, 100);
+            }
+        });
+
+        // Mejorar el comportamiento al hacer click en inputs de fecha
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('date-input')) {
+                const input = e.target;
+                
+                // En algunos navegadores móviles, forzar que el calendario se abra
+                if (!input.value) {
+                    // Si está vacío, intentar abrir el calendario
+                    input.showPicker && input.showPicker();
+                }
+            }
+        });
+
+        // Manejar el evento blur para asegurar que los valores se mantengan
+        document.addEventListener('blur', function(e) {
+            if (e.target.classList.contains('date-input')) {
+                const input = e.target;
+                
+                // Validar formato de fecha en móviles
+                if (input.value) {
+                    const date = new Date(input.value);
+                    if (isNaN(date.getTime())) {
+                        // Si la fecha no es válida, intentar corregirla
+                        input.value = '';
+                    }
+                }
+            }
+        }, true);
+    }
+}
+
+// Función para limpiar todos los campos y resetear las tablas
 function clearAllFields() {
     // Limpiar tabla específica
     const specificTbody = document.getElementById('specific-tbody');
     const specificRows = specificTbody.querySelectorAll('tr');
     specificRows.forEach(row => {
-        const dateInputs = row.querySelectorAll('.date-input:not(.readonly)');
-        dateInputs.forEach(input => input.value = '');
+        if (!row.classList.contains('readonly-row')) {
+            const dateInputs = row.querySelectorAll('.date-input');
+            dateInputs.forEach(input => input.value = '');
+        }
     });
-
+    
     // Limpiar tabla general (solo filas editables)
     const generalTbody = document.getElementById('general-tbody');
     const generalRows = generalTbody.querySelectorAll('tr:not(.readonly-row)');
     generalRows.forEach(row => {
-        const dateInputs = row.querySelectorAll('.date-input:not(.readonly)');
+        const dateInputs = row.querySelectorAll('.date-input');
         dateInputs.forEach(input => input.value = '');
     });
-
+    
     // Recalcular totales
     calculateTotal('specific');
     calculateTotal('general');
-
-    // Ocultar botones de limpiar
+    
+    // Actualizar visibilidad de botones de limpiar
     toggleClearButtonVisibility('specific');
     toggleClearButtonVisibility('general');
 }

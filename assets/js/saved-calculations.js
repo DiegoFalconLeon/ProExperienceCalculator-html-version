@@ -1,9 +1,9 @@
-// Internationalization variables
+// Variables de internacionalización
 let currentLanguage = localStorage.getItem('language') || 'es';
 let translations = {};
 let dataTable = null;
 
-// Load translations and initialize app
+// Cargar traducciones e inicializar aplicación
 async function loadTranslations(lang) {
     try {
         const response = await fetch(`lang/${lang}.json`);
@@ -18,13 +18,13 @@ async function loadTranslations(lang) {
 }
 
 function updateUI() {
-    // Update document title
+    // Actualizar título del documento
     document.title = translations.savedCalculations;
 
-    // Update html lang attribute
+    // Actualizar atributo lang del html
     document.documentElement.lang = currentLanguage;
 
-    // Update all elements with data-i18n attributes
+    // Actualizar todos los elementos con atributos data-i18n
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[key]) {
@@ -38,7 +38,7 @@ function updateUI() {
         }
     });
 
-    // Update language selector
+    // Actualizar selector de idioma
     const languageSelect = document.getElementById('language-select');
     if (languageSelect) {
         languageSelect.value = currentLanguage;
@@ -55,7 +55,7 @@ function loadSavedCalculations() {
     const tbody = document.getElementById('calculations-tbody');
     const savedCalculations = JSON.parse(localStorage.getItem('savedCalculations') || '[]');
 
-    // Clear existing table
+    // Limpiar tabla existente
     tbody.innerHTML = '';
 
     if (savedCalculations.length === 0) {
@@ -69,7 +69,7 @@ function loadSavedCalculations() {
         return;
     }
 
-    // Populate table rows
+    // Llenar filas de la tabla
     savedCalculations.forEach(calc => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -86,7 +86,7 @@ function loadSavedCalculations() {
         tbody.appendChild(row);
     });
 
-    // Initialize or reinitialize DataTable
+    // Inicializar o reinicializar DataTable
     if (dataTable) {
         dataTable.destroy();
     }
@@ -98,7 +98,7 @@ function loadSavedCalculations() {
         pageLength: 10,
         responsive: true,
         columnDefs: [
-            { orderable: false, targets: 5 } // Disable sorting on actions column
+            { orderable: false, targets: 5 } // Deshabilitar ordenamiento en columna de acciones
         ]
     });
 }

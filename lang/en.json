@@ -49,5 +49,11 @@
   "deletedCalcText": "The calculation has been deleted.",
   "loadCalculation": "Load Calculation",
   "backToCalculator": "← Back to Calculator",
-  "registroNumber": "Registration #"
+  "registroNumber": "Registration #",
+  "editingMode": "Editing Mode:",
+  "cancelEdit": "Cancel Edit",
+  "newCalculation": "New Calculation",
+  "updateCalculation": "Update Calculation",
+  "saveAsNew": "Save as New",
+  "updateExisting": "Update Existing"
 }

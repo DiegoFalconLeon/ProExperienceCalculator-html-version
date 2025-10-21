@@ -33,6 +33,7 @@
   "viewSaved": "Ver Cálculos Guardados",
   "saveDialogTitle": "Guardar Cálculo",
   "saveDialogText": "Ingrese los datos para guardar este cálculo:",
+  "registroNumber": "# Registro",
   "firstName": "Nombres",
   "lastName": "Apellidos",
   "saveSuccessTitle": "Guardado",
@@ -49,5 +50,10 @@
   "deletedCalcText": "El cálculo ha sido eliminado.",
   "loadCalculation": "Cargar Cálculo",
   "backToCalculator": "← Volver a la Calculadora",
-  "registroNumber": "# de Registro"
+  "editingMode": "Modo Edición:",
+  "updateExisting": "Actualizar cálculo existente",
+  "saveAsNew": "Guardar como nuevo cálculo",
+  "updateCalculation": "Actualizar Cálculo",
+  "newCalculation": "Nuevo Cálculo",
+  "cancelEdit": "Cancelar Edición"
 }

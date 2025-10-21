@@ -467,6 +467,68 @@ tbody tr:hover {
     }
 }
 
+/* Estilos específicos para inputs de fecha en móviles - permitir edición manual */
+@media (max-width: 768px) {
+    .date-input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background: white !important;
+        cursor: text !important;
+    }
+
+    .date-input::-webkit-date-and-time-value {
+        text-align: left;
+        padding: 0;
+    }
+
+    .date-input::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 1;
+        filter: invert(0.5);
+    }
+
+    .date-input::-webkit-inner-spin-button,
+    .date-input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .date-input::-webkit-clear-button {
+        -webkit-appearance: none;
+    }
+
+    /* Para Firefox */
+    .date-input::-moz-focus-inner {
+        border: 0;
+    }
+
+    /* Para Edge */
+    .date-input::-ms-clear {
+        display: none;
+    }
+
+    .date-input::-ms-expand {
+        display: none;
+    }
+}
+
+/* Para dispositivos táctiles específicamente */
+@media (hover: none) and (pointer: coarse) {
+    .date-input {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background: white !important;
+        cursor: text !important;
+        font-family: monospace;
+    }
+
+    .date-input:focus {
+        background: white !important;
+    }
+}
+
 /* Estilos para SweetAlert2 */
 .swal-confirm-btn {
     background: linear-gradient(135deg, #20c5bf 0%, #7543e9 100%) !important;
@@ -582,7 +644,7 @@ tbody tr:hover {
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-    display: inline-block;
+    display: none; /* Oculto por defecto */
 }
 
 .view-saved-btn:hover {
@@ -594,4 +656,36 @@ tbody tr:hover {
 .view-saved-btn:active {
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+}
+
+/* Estilos para el logo */
+.header img {
+    max-width: 200px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* Estilos para el indicador de edición */
+#editing-indicator {
+    display: none;
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    border: 1px solid #ffeaa7;
+}
+
+#editing-indicator button {
+    margin-left: 10px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#editing-indicator button:hover {
+    background: #5a6268;
 }
